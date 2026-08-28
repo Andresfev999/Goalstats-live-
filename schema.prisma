@@ -1,0 +1,56 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider  = "prisma-client-py"
+  interface = "sync"
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  nombre   String
+  email    String @unique
+  password String
+
+  @@map("usuarios")
+}
+
+model Equipo {
+  id        Int                 @id @default(autoincrement())
+  nombre    String              @unique
+  logo      String
+  league_id Int                 @default(140)
+  stats     EstadisticaEquipo[]
+  jugadores Jugador[]
+
+  @@map("Equipos")
+}
+
+model EstadisticaEquipo {
+  id                 Int    @id @default(autoincrement())
+  equipo_id          Int
+  equipo             Equipo @relation(fields: [equipo_id], references: [id], onDelete: Cascade)
+  partidos_ganados   Int    @default(0)
+  partidos_empatados Int    @default(0)
+  partidos_perdidos  Int    @default(0)
+  puntos_totales     Int    @default(0)
+
+  @@map("EstadisticasEquipos")
+}
+
+model Jugador {
+  id                 Int     @id @default(autoincrement())
+  nombre             String
+  nombre_equipo      String
+  equipo_id          Int?
+  equipo             Equipo? @relation(fields: [equipo_id], references: [id], onDelete: SetNull)
+  foto               String?
+  goles              Int     @default(0)
+  remates_al_arco    Int     @default(0)
+  tarjetas_amarillas Int     @default(0)
+  tarjetas_rojas     Int     @default(0)
+
+  @@map("Jugadores")
+}

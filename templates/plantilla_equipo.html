@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOALSTATS LIVE ⚡ | Plantilla de {{ equipo.nombre }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --accent: #8b5cf6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .logo-icon-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            margin-right: 0.35rem;
+        }
+
+        .logo-icon-wrap i.ball-icon {
+            font-size: 1.6rem;
+            color: #60a5fa;
+            -webkit-text-fill-color: initial;
+        }
+
+        .logo-icon-wrap i.ray-icon {
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            color: #f59e0b;
+            font-size: 1.15rem;
+            -webkit-text-fill-color: initial;
+            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8));
+        }
+
+        nav ul {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Banner del Equipo */
+        .team-banner {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .team-banner img {
+            width: 110px;
+            height: 110px;
+            object-fit: contain;
+        }
+
+        .team-info h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+        }
+
+        .stats-badge-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tarjetas de Jugadores */
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .player-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.25 ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.25rem;
+            cursor: pointer;
+        }
+
+        .player-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25);
+        }
+
+        .player-img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 8px;
+            border: 2px solid var(--primary);
+            margin-bottom: 0.85rem;
+        }
+
+        .player-name {
+            font-weight: 700;
+            font-size: 1.05rem;
+            text-align: center;
+        }
+
+        .player-pos {
+            color: #60a5fa;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .player-stat {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 8px;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        /* Modal Biografía de Jugador */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-card {
+            background: #1e293b;
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            max-width: 550px;
+            width: 100%;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <nav style="padding: 0.75rem 2.5rem;">
+        <a href="/principal" class="brand-logo" style="text-decoration: none; display: flex; align-items: center; gap: 1rem;">
+            <img src="/static/img/shield_icon.png" alt="GOALSTATS LIVE" style="height: 64px; width: auto; object-fit: contain; filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.6));">
+            <span style="font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 0.5rem; font-size: 1.9rem;">
+                <span style="color: #ffffff; text-shadow: 0 3px 12px rgba(0,0,0,0.7);">GOALSTATS</span>
+                <span style="color: #ffffff; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 0.22rem 0.7rem; border-radius: 9px; font-size: 1.45rem; box-shadow: 0 0 18px rgba(239, 68, 68, 0.6); font-weight: 900; letter-spacing: 0.75px;">LIVE</span>
+            </span>
+        </a>
+        <ul>
+            <li><a href="/principal"><i class="bi bi-house-door"></i> Inicio</a></li>
+            <li><a href="/estadisticas_equipos"><i class="bi bi-bar-chart-line"></i> Estadísticas y Ligas</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        
+        <div style="margin-bottom: 1rem;">
+            <a href="/estadisticas_equipos?league_id={{ equipo.league_id if equipo.league_id else 140 }}" style="color: #60a5fa; text-decoration: none; font-weight: 600;">
+                <i class="bi bi-arrow-left"></i> Volver a Estadísticas de la Liga
+            </a>
+        </div>
+
+        <!-- Banner del Equipo -->
+        <div class="team-banner">
+            <img src="{{ equipo.logo }}" onerror="this.src='/static/img/shield_icon.png'" alt="{{ equipo.nombre }}">
+            <div class="team-info">
+                <h1>{{ equipo.nombre }}</h1>
+                <div class="stats-badge-group">
+                    <div class="stat-badge">Puntos: <strong style="color: #60a5fa;">{{ stats.puntos_totales }}</strong></div>
+                    <div class="stat-badge">PG: <span style="color: #10b981;">{{ stats.partidos_ganados }}</span></div>
+                    <div class="stat-badge">PE: <span style="color: #f59e0b;">{{ stats.partidos_empatados }}</span></div>
+                    <div class="stat-badge">PP: <span style="color: #ef4444;">{{ stats.partidos_perdidos }}</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-layout">
+            
+            <!-- Plantilla de Jugadores Reales -->
+            <div>
+                <h3 style="font-size: 1.3rem; margin-bottom: 1rem; font-weight: 800;"><i class="bi bi-people-fill" style="color: #60a5fa;"></i> Plantilla Oficial de Jugadores</h3>
+                <div class="players-grid">
+                    {% for j in jugadores %}
+                        <div class="player-card" onclick="verBioJugador('{{ j.nombre }}', '{{ j.foto }}', {{ j.goles }}, {{ j.asistencias if j.asistencias is defined else 0 }}, {{ j.partidos_jugados if j.partidos_jugados is defined else 0 }}, {{ j.remates_al_arco if j.remates_al_arco if j.remates_al_arco is defined else 0 }}, {{ j.tarjetas_amarillas if j.tarjetas_amarillas is defined else 0 }}, {{ j.tarjetas_rojas if j.tarjetas_rojas is defined else 0 }}, '{{ j.posicion }}')">
+                            <img src="{{ j.foto if j.foto and not 'unsplash' in j.foto else equipo.logo }}" class="player-img" onerror="this.src='/static/img/shield_icon.png';" alt="{{ j.nombre }}">
+                            <div class="player-name">{{ j.nombre }}</div>
+                            <div class="player-pos">{{ j.posicion }}</div>
+                            <div style="display: flex; gap: 0.35rem; justify-content: center; margin-top: 0.5rem; flex-wrap: wrap;">
+                                <div class="player-stat"><i class="bi bi-dribbble"></i> Goles: {{ j.goles }}</div>
+                                {% if j.asistencias is defined and j.asistencias > 0 %}
+                                    <div class="player-stat" style="background: rgba(16, 185, 129, 0.15); color: #34d399;"><i class="bi bi-person-check"></i> Asis: {{ j.asistencias }}</div>
+                                {% endif %}
+                                {% if j.partidos_jugados is defined and j.partidos_jugados > 0 %}
+                                    <div class="player-stat" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc;"><i class="bi bi-shield-play"></i> PJ: {{ j.partidos_jugados }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Gráfica de Rendimiento NumPy -->
+            <div>
+                <div class="chart-card">
+                    <h4 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem;"><i class="bi bi-pie-chart-fill" style="color: #a78bfa;"></i> Rendimiento Matricial</h4>
+                    <canvas id="teamPerformanceChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Modal Biografía & Estadísticas En Vivo ESPN -->
+    <div class="modal-overlay" id="bioModal">
+        <div class="modal-card" style="max-width: 500px; width: 90%;">
+            <span class="modal-close" onclick="cerrarBioModal()">&times;</span>
+            <div style="display: flex; gap: 1.25rem; align-items: center; margin-bottom: 1.25rem;">
+                <img src="" id="modalImg" style="width: 80px; height: 80px; border-radius: 50%; object-fit: contain; background: rgba(15, 23, 42, 0.9); padding: 6px; border: 2px solid #3b82f6;" onerror="this.src='/static/img/shield_icon.png'">
+                <div>
+                    <h3 id="modalNombre" style="font-weight: 800; font-size: 1.2rem; margin: 0;"></h3>
+                    <p id="modalPosicion" style="color: #60a5fa; font-weight: 700; font-size: 0.85rem; margin: 0.2rem 0 0 0;"></p>
+                    <p id="modalPais" style="color: #94a3b8; font-weight: 600; font-size: 0.8rem; margin: 0.1rem 0 0 0;"></p>
+                </div>
+            </div>
+
+            <!-- Grilla de Estadísticas Reales ESPN del Jugador -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; margin-bottom: 1.25rem; background: rgba(30, 41, 59, 0.6); padding: 0.85rem; border-radius: 12px; border: 1px solid var(--card-border);">
+                <div style="text-align: center;">
+                    <span style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Goles</span>
+                    <h4 id="statGoles" style="font-weight: 800; color: #60a5fa; font-size: 1.15rem; margin: 0.1rem 0 0 0;">0</h4>
+                </div>
+                <div style="text-align: center;">
+                    <span style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Asistencias</span>
+                    <h4 id="statAsistencias" style="font-weight: 800; color: #34d399; font-size: 1.15rem; margin: 0.1rem 0 0 0;">0</h4>
+                </div>
+                <div style="text-align: center;">
+                    <span style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Partidos (PJ)</span>
+                    <h4 id="statPartidos" style="font-weight: 800; color: #a5b4fc; font-size: 1.15rem; margin: 0.1rem 0 0 0;">0</h4>
+                </div>
+                <div style="text-align: center;">
+                    <span style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Remates</span>
+                    <h4 id="statRemates" style="font-weight: 800; color: #f59e0b; font-size: 1.15rem; margin: 0.1rem 0 0 0;">0</h4>
+                </div>
+                <div style="text-align: center;">
+                    <span style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">T. Amarillas</span>
+                    <h4 id="statAmarillas" style="font-weight: 800; color: #facc15; font-size: 1.15rem; margin: 0.1rem 0 0 0;">0</h4>
+                </div>
+                <div style="text-align: center;">
+                    <span style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">T. Rojas</span>
+                    <h4 id="statRojas" style="font-weight: 800; color: #f87171; font-size: 1.15rem; margin: 0.1rem 0 0 0;">0</h4>
+                </div>
+            </div>
+
+            <p id="modalBioText" style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; max-height: 150px; overflow-y: auto; background: rgba(15, 23, 42, 0.4); padding: 0.75rem; border-radius: 8px; margin: 0;"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('teamPerformanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ganados', 'Empatados', 'Perdidos'],
+                    datasets: [{
+                        data: [{{ stats.partidos_ganados }}, {{ stats.partidos_empatados }}, {{ stats.partidos_perdidos }}],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#f8fafc', font: { family: 'Inter', weight: '600' } }
+                        }
+                    }
+                }
+            });
+        });
+
+        function verBioJugador(nombre, foto, goles, asistencias, partidos, remates, amarillas, rojas, posicion) {
+            document.getElementById('modalNombre').innerText = nombre;
+            document.getElementById('modalPosicion').innerText = posicion || 'Jugador Profesional';
+            document.getElementById('modalImg').src = (foto && !foto.includes('unsplash')) ? foto : '{{ equipo.logo }}';
+            
+            document.getElementById('statGoles').innerText = goles || 0;
+            document.getElementById('statAsistencias').innerText = asistencias || 0;
+            document.getElementById('statPartidos').innerText = partidos || 0;
+            document.getElementById('statRemates').innerText = remates || 0;
+            document.getElementById('statAmarillas').innerText = amarillas || 0;
+            document.getElementById('statRojas').innerText = rojas || 0;
+
+            document.getElementById('modalPais').innerText = 'Cargando datos en vivo de ESPN...';
+            document.getElementById('modalBioText').innerText = `${nombre} (${posicion || 'Jugador'}) registra ${goles || 0} goles, ${asistencias || 0} asistencias y ${partidos || 0} partidos jugados en la temporada actual.`;
+
+            document.getElementById('bioModal').style.display = 'flex';
+
+            fetch('/api/jugador/bio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre: nombre })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.nacionalidad) {
+                    document.getElementById('modalPais').innerText = `Nacionalidad: ${data.nacionalidad}`;
+                }
+                if (data.biografia) {
+                    document.getElementById('modalBioText').innerText = data.biografia;
+                }
+                if (data.foto && !data.foto.includes('unsplash')) {
+                    document.getElementById('modalImg').src = data.foto;
+                }
+                if (data.goles !== undefined) document.getElementById('statGoles').innerText = data.goles;
+                if (data.asistencias !== undefined) document.getElementById('statAsistencias').innerText = data.asistencias;
+                if (data.partidos_jugados !== undefined) document.getElementById('statPartidos').innerText = data.partidos_jugados;
+                if (data.remates_al_arco !== undefined) document.getElementById('statRemates').innerText = data.remates_al_arco;
+                if (data.tarjetas_amarillas !== undefined) document.getElementById('statAmarillas').innerText = data.tarjetas_amarillas;
+                if (data.tarjetas_rojas !== undefined) document.getElementById('statRojas').innerText = data.tarjetas_rojas;
+            });
+        }
+
+        function cerrarBioModal() {
+            document.getElementById('bioModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

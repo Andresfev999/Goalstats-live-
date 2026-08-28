@@ -2,37 +2,1184 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Página Principal</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_principal.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOALSTATS LIVE ⚡ | Noticias • Estadísticas • Fútbol en Vivo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --card-bg: rgba(15, 23, 42, 0.85);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --primary: #2563eb;
+            --accent: #ef4444;
+            --neon-green: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, rgba(10, 25, 47, 0.94) 0%, rgba(15, 23, 42, 0.96) 50%, rgba(30, 27, 75, 0.94) 100%),
+                        url('/static/football_bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        nav {
+            background: rgba(10, 25, 47, 0.9);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 0.85rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-img {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+        }
+
+        nav ul {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: #ffffff;
+            background: rgba(37, 99, 235, 0.25);
+            border: 1px solid rgba(37, 99, 235, 0.45);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        @keyframes shimmerAnimation {
+            0% { background-position: -300px 0; }
+            100% { background-position: 300px 0; }
+        }
+
+        .skeleton-bar {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.04) 100%);
+            background-size: 600px 100%;
+            animation: shimmerAnimation 1.4s infinite linear;
+            border-radius: 10px;
+        }
+
+        .hero-live-carousel-container {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .carousel-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .ticker-badge-large {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 800;
+            padding: 0.4rem 0.85rem;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .carousel-track-wrapper {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            width: 100%;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            gap: 1rem;
+        }
+
+        .carousel-slide:hover {
+            border-color: #60a5fa;
+            background: rgba(59, 130, 246, 0.15);
+            transform: scale(1.01);
+        }
+
+        .team-side {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .team-side.home {
+            justify-content: flex-end;
+            text-align: right;
+        }
+
+        .team-side.away {
+            justify-content: flex-start;
+            text-align: left;
+        }
+
+        .team-side img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+        .team-side-name {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .score-center-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem 1.5rem;
+            border-radius: 14px;
+            min-width: 150px;
+        }
+
+        .score-numbers {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #60a5fa;
+            letter-spacing: 0.1em;
+        }
+
+        .minute-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            margin-top: 0.25rem;
+        }
+
+        .btn-live-watch {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .carousel-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .carousel-btn {
+            background: #1e293b;
+            color: #fff;
+            border: 1px solid var(--card-border);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .carousel-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .carousel-dots {
+            display: flex;
+            gap: 0.4rem;
+            margin-left: 0.75rem;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: #60a5fa;
+            width: 20px;
+            border-radius: 10px;
+        }
+
+        .news-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .news-layout {
+                grid-template-columns: 1fr;
+            }
+            .carousel-slide {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .team-side.home, .team-side.away {
+                justify-content: center;
+                text-align: center;
+            }
+        }
+
+        .news-filter-pills {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .pill-btn {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 0.45rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .pill-btn:hover, .pill-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .hero-story {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .hero-story:hover {
+            transform: translateY(-4px);
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.5;
+            z-index: 1;
+            transition: scale 0.5s ease;
+        }
+
+        .hero-story:hover .hero-bg {
+            scale: 1.04;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(9, 13, 22, 0.95) 0%, rgba(9, 13, 22, 0.4) 70%, transparent 100%);
+        }
+
+        .tag {
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .news-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .news-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .widget-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .widget-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #60a5fa;
+        }
+
+        .star-player-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(30, 27, 75, 0.9) 100%);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            border-radius: 16px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+            transition: opacity 0.4s ease;
+        }
+
+        .star-player-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #a78bfa;
+            box-shadow: 0 0 15px rgba(167, 139, 250, 0.4);
+        }
+
+        .star-player-name {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .leader-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 0.85rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        .leader-team-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+        }
+
+        .leader-team-badge img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        /* 📅 Widget Próximas Fechas & Calendario Oficial */
+        .fixture-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .fixture-header-date {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #60a5fa;
+            text-transform: uppercase;
+        }
+
+        .fixture-teams-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .fixture-team {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .fixture-team img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+        }
+
+        .stream-item {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stream-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .stream-channels-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-stream-channel {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            padding: 0.35rem 0.65rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            white-space: nowrap;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-stream-channel:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+        }
+
+        .player-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .player-modal-container {
+            background: #1e293b;
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            max-width: 920px;
+            width: 100%;
+            padding: 1.5rem;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+        }
+
+        .player-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .player-modal-close {
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .player-iframe-wrapper {
+            width: 100%;
+            height: 440px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #000000;
+            border: 1px solid var(--card-border);
+            position: relative;
+        }
+
+        .player-iframe-wrapper iframe {
+            width: 100%;
+            height: calc(100% + 150px);
+            border: none;
+            margin-top: -45px;
+        }
+    </style>
 </head>
 <body>
-<nav>
-    <ul>
-        <li><a href="{{ url_for('principal') }}">Inicio</a></li>
-        <li><a href="{{ url_for('ingresar_equipos') }}">Ingresar Equipos</a></li>
-        <li><a href="{{ url_for('registrar_datos') }}">Registrar Datos</a></li>
-        <li><a href="{{ url_for('estadisticas_equipos') }}">Estadísticas</a></li>
-        <li><a href="{{ url_for('cerrar_sesion') }}">Cerrar Sesión</a></li>
-    </ul>
-</nav>
 
-<!-- Contenido principal -->
-<div class="container mt-4">
-    <h1>Equipos</h1>
-    <div class="row">
-        {% for equipo in equipos.equipos %}
-            <div class="col-6 col-md-4 col-lg-3 mb-4">
-                <div class="team-card">
-                    <img src="{{ equipo.logo }}" alt="{{ equipo.nombre }}" class="img-fluid">
-                    <p>{{ equipo.nombre }}</p>
+    <nav style="padding: 0.75rem 2.5rem;">
+        <a href="/principal" class="brand-logo" style="text-decoration: none; display: flex; align-items: center; gap: 1rem;">
+            <img src="/static/img/shield_icon.png" alt="GOALSTATS LIVE" style="height: 64px; width: auto; object-fit: contain; filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.6)); transition: transform 0.25s ease;">
+            <span style="font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 0.5rem; font-size: 1.9rem;">
+                <span style="color: #ffffff; text-shadow: 0 3px 12px rgba(0,0,0,0.7);">GOALSTATS</span>
+                <span style="color: #ffffff; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 0.22rem 0.7rem; border-radius: 9px; font-size: 1.45rem; box-shadow: 0 0 18px rgba(239, 68, 68, 0.6); font-weight: 900; letter-spacing: 0.75px;">LIVE</span>
+            </span>
+        </a>
+        <ul>
+            <li><a href="/principal" class="active"><i class="bi bi-house-door"></i> Inicio</a></li>
+            <li><a href="/estadisticas_equipos"><i class="bi bi-bar-chart-line"></i> Estadísticas y Ligas</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        
+        <!-- Gran Carrusel Automático de Partidos en Vivo con Skeleton Loader -->
+        <div class="hero-live-carousel-container">
+            <div class="carousel-top-bar">
+                <div class="ticker-badge-large">
+                    <i class="bi bi-broadcast"></i> EN VIVO - MARCADORES & TRANSMISIONES
+                </div>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" onclick="slidePrev()"><i class="bi bi-chevron-left"></i></button>
+                    <button class="carousel-btn" onclick="slideNext()"><i class="bi bi-chevron-right"></i></button>
+                    <div class="carousel-dots" id="carouselDots"></div>
                 </div>
             </div>
-        {% endfor %}
+
+            <div class="carousel-track-wrapper">
+                <div class="carousel-track" id="carouselTrack">
+                    <!-- Skeleton Loader Animado -->
+                    <div class="carousel-slide" style="pointer-events: none; border-color: rgba(255,255,255,0.05);">
+                        <div class="team-side home" style="gap: 0.75rem;">
+                            <div class="skeleton-bar" style="height: 24px; width: 130px;"></div>
+                            <div class="skeleton-bar" style="height: 48px; width: 48px; border-radius: 50%;"></div>
+                        </div>
+
+                        <div class="score-center-box" style="gap: 0.5rem; min-width: 140px; background: rgba(15, 23, 42, 0.4);">
+                            <div class="skeleton-bar" style="height: 32px; width: 75px;"></div>
+                            <div class="skeleton-bar" style="height: 18px; width: 95px; border-radius: 10px;"></div>
+                        </div>
+
+                        <div class="team-side away" style="gap: 0.75rem;">
+                            <div class="skeleton-bar" style="height: 48px; width: 48px; border-radius: 50%;"></div>
+                            <div class="skeleton-bar" style="height: 24px; width: 130px;"></div>
+                        </div>
+
+                        <div class="skeleton-bar" style="height: 40px; width: 140px; border-radius: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="news-layout">
+            
+            <!-- Main Content Area: Noticias Deportivas Reales en Vivo -->
+            <div>
+                <!-- 🏷️ Filtros de Noticias Pills -->
+                <div class="news-filter-pills">
+                    <button class="pill-btn active" onclick="filtrarNoticias('todas', this)">Todas las Noticias</button>
+                    <button class="pill-btn" onclick="filtrarNoticias('MARCA', this)">Diario MARCA</button>
+                    <button class="pill-btn" onclick="filtrarNoticias('Mundo Deportivo', this)">Mundo Deportivo</button>
+                    <button class="pill-btn" onclick="filtrarNoticias('ESPN', this)">ESPN Deportes</button>
+                </div>
+
+                <!-- Noticia Destacada Reales (Hero) -->
+                <div id="heroStoryContainer">
+                    <div class="hero-story">
+                        <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80" class="hero-bg" alt="Hero">
+                        <div class="hero-content">
+                            <span class="tag">Noticias Reales de Fútbol</span>
+                            <h2 class="hero-title">Cargando noticias en tiempo real...</h2>
+                            <p class="hero-desc">Sincronizando noticias deportivas en directo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary News Grid -->
+                <h3 style="font-size: 1.3rem; margin-bottom: 1rem; font-weight: 800;"><i class="bi bi-newspaper" style="color: #60a5fa;"></i> Últimas Noticias Reales</h3>
+                <div class="news-grid" id="newsGrid">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+
+            <!-- Sidebar Widgets -->
+            <div class="sidebar">
+                
+                <!-- ⭐ Widget Jugador Estrella del Día -->
+                <div class="widget-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <h4 class="widget-title" style="margin:0; color: #a78bfa;"><i class="bi bi-star-fill"></i> Jugador Estrella</h4>
+                        <span style="font-size: 0.7rem; color: #10b981; font-weight: 700;"><i class="bi bi-shield-check"></i> Caché 30 min</span>
+                    </div>
+                    <div class="star-player-card" id="starPlayerBox">
+                        <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=400&q=80" 
+                             onerror="this.src='https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=400&q=80'" 
+                             class="star-player-img" id="starImg" alt="Jugador">
+                        <div>
+                            <div class="star-player-name" id="starName">Cargando...</div>
+                            <div style="color: #60a5fa; font-size: 0.85rem; font-weight: 700;" id="starTeam">Fútbol Profesional</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;" id="starStats">Goles: -- | Asistencias: --</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📅 Widget Próximas Fechas & Calendario Oficial (Caché 30 min) -->
+                <div class="widget-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 class="widget-title" style="margin: 0; color: #60a5fa;"><i class="bi bi-calendar-event-fill"></i> Próximas Fechas</h4>
+                        <span style="font-size: 0.7rem; color: #10b981; font-weight: 700;"><i class="bi bi-lightning-charge-fill"></i> Caché 30 min</span>
+                    </div>
+                    <div id="nextFixturesBox">
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Cargando calendario de partidos...</p>
+                    </div>
+                </div>
+
+                <!-- 🏆 Widget Top 5 Líderes de la Liga (Caché 30 min) -->
+                <div class="widget-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 class="widget-title" style="margin: 0; color: #f59e0b;"><i class="bi bi-trophy-fill"></i> Top 5 Líderes</h4>
+                        <select id="top5LeagueSelect" onchange="cargarTop5(this.value)" style="padding: 0.35rem 0.6rem; font-size: 0.8rem; background: #0f172a; color: #fff; border: 1px solid var(--card-border); border-radius: 8px;">
+                            <option value="140">La Liga 🇪🇸</option>
+                            <option value="39">Premier League 🏴󠁧󠁢󠁥󠁮󠁧󠁿</option>
+                            <option value="135">Serie A 🇮🇹</option>
+                            <option value="78">Bundesliga 🇩🇪</option>
+                            <option value="61">Ligue 1 🇫🇷</option>
+                            <option value="239">Liga BetPlay 🇨🇴</option>
+                            <option value="128">Liga Profesional 🇦🇷</option>
+                            <option value="253">MLS 🇺🇸</option>
+                            <option value="262">Liga MX 🇲🇽</option>
+                            <option value="71">Brasileirão 🇧🇷</option>
+                            <option value="88">Eredivisie 🇳🇱</option>
+                            <option value="94">Primeira Liga 🇵🇹</option>
+                            <option value="307">Saudi Pro League 🇸🇦</option>
+                            <option value="2">Champions League 🇪🇺</option>
+                            <option value="13">Copa Libertadores 🏆</option>
+                        </select>
+                    </div>
+                    <div id="top5Box">
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Cargando tabla de líderes reales...</p>
+                    </div>
+                </div>
+
+                <!-- Widget Transmisiones en Vivo (Canales Directos Rojadirecta) -->
+                <div class="widget-card">
+                    <h4 class="widget-title" style="color: #10b981;"><i class="bi bi-tv-fill"></i> Canales y Reproductor Directo</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1rem;">Haz clic en el canal para reproducir el partido en directo:</p>
+                    <div id="streamsList">
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Cargando opciones de reproductor y canales de Rojadirecta...</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-</div>
 
-<script src="{{ url_for('static', filename='js/loader.js') }}"></script>
+    <!-- Modal Reproductor de Canal Directo -->
+    <div class="player-modal-overlay" id="playerModal">
+        <div class="player-modal-container">
+            <div class="player-modal-header">
+                <h3 id="playerModalTitle" style="font-weight: 800; color: #60a5fa;"><i class="bi bi-play-circle-fill"></i> Reproductor en Vivo</h3>
+                <span class="player-modal-close" onclick="cerrarReproductor()">&times;</span>
+            </div>
+            
+            <div class="player-iframe-wrapper">
+                <iframe id="playerIframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                <span style="color: #10b981; font-size: 0.85rem; font-weight: 600;"><i class="bi bi-check-circle-fill"></i> Transmisión Nativa Activa</span>
+                <a id="playerExternalLink" href="#" target="_blank" rel="noopener" style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.4); color: #60a5fa; padding: 0.4rem 0.85rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.85rem;">
+                    <i class="bi bi-box-arrow-up-right"></i> Abrir Canal Externo
+                </a>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        const DEFAULT_SHIELD = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='%233b82f6'><path d='M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3zm0 2.18l7 2.33v4.49c0 4.54-3.14 8.78-7 9.87-3.86-1.09-7-5.33-7-9.87V6.51l7-2.33z'/></svg>";
+        const fallbackImg = "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80";
+
+        let currentSlideIndex = 0;
+        let totalSlidesCount = 0;
+        let carouselTimer = null;
+        let partidosEnVivoData = [];
+        let todasLasNoticiasData = [];
+
+        const defaultLiveMatches = [
+            { home: 'Inter Bogotá', home_logo: 'https://media.api-sports.io/football/teams/1128.png', away: 'Deportivo Pasto', away_logo: 'https://media.api-sports.io/football/teams/1137.png', goals_home: 1, goals_away: 0, league: 'Liga BetPlay 🇨🇴', minute: 62 },
+            { home: 'Platense', home_logo: 'https://media.api-sports.io/football/teams/451.png', away: 'Instituto', away_logo: 'https://media.api-sports.io/football/teams/455.png', goals_home: 1, goals_away: 1, league: 'Copa Argentina 🇦🇷', minute: 75 },
+            { home: 'Mixco', home_logo: 'https://a.espncdn.com/i/teamlogos/soccer/500/18850.png', away: 'Alianza', away_logo: 'https://a.espncdn.com/i/teamlogos/soccer/500/2967.png', goals_home: 0, goals_away: 2, league: 'Copa Centroamericana 🏆', minute: 44 },
+            { home: 'Olimpia', home_logo: 'https://a.espncdn.com/i/teamlogos/soccer/500/2972.png', away: 'Deportivo Saprissa', away_logo: 'https://a.espncdn.com/i/teamlogos/soccer/500/2984.png', goals_home: 2, goals_away: 2, league: 'Copa Centroamericana 🏆', minute: 38 }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarJugadorEstrella();
+            cargarProximasFechas(239);
+            cargarTop5(140);
+            cargarNoticiasYPartidos();
+            cargarTransmisiones();
+
+            setInterval(function() {
+                cargarJugadorEstrella();
+                cargarProximasFechas(239);
+                const selLeague = document.getElementById('top5LeagueSelect').value;
+                cargarTop5(selLeague);
+                cargarNoticiasYPartidos();
+                cargarTransmisiones();
+            }, 60000);
+        });
+
+        function cargarJugadorEstrella() {
+            const card = document.getElementById('starPlayerBox');
+            fetch('/api/jugador_estrella')
+                .then(r => r.json())
+                .then(p => {
+                    document.getElementById('starName').innerText = p.nombre;
+                    document.getElementById('starTeam').innerText = p.equipo;
+                    document.getElementById('starStats').innerText = `Goles: ${p.goles} | Asistencias: ${p.asistencias}`;
+                    if (p.foto) document.getElementById('starImg').src = p.foto;
+                });
+        }
+
+        function cargarProximasFechas(leagueId) {
+            const box = document.getElementById('nextFixturesBox');
+            fetch(`/api/proximas_fechas?league_id=${leagueId}`)
+                .then(r => r.json())
+                .then(fechas => {
+                    if (!fechas || fechas.length === 0) {
+                        box.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No hay próximos partidos registrados para esta liga.</p>`;
+                        return;
+                    }
+
+                    box.innerHTML = fechas.slice(0, 4).map(f => `
+                        <div class="fixture-card">
+                            <div class="fixture-header-date"><i class="bi bi-calendar3"></i> ${f.fecha_partido} - ${f.hora}</div>
+                            <div class="fixture-teams-row">
+                                <div class="fixture-team">
+                                    <img src="${f.logo_local}" onerror="this.src='${DEFAULT_SHIELD}'" alt="${f.equipo_local}">
+                                    <span>${f.equipo_local}</span>
+                                </div>
+                                <span style="color: #60a5fa; font-weight: 900; font-size: 0.8rem;">VS</span>
+                                <div class="fixture-team">
+                                    <span>${f.equipo_visitante}</span>
+                                    <img src="${f.logo_visitante}" onerror="this.src='${DEFAULT_SHIELD}'" alt="${f.equipo_visitante}">
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                })
+                .catch(err => {
+                    box.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">Próxima jornada en proceso de actualización.</p>`;
+                });
+        }
+
+        function cargarTop5(leagueId) {
+            const box = document.getElementById('top5Box');
+            if (!box.children.length || box.innerHTML.includes('Cargando') || box.innerHTML.includes('Error')) {
+                box.innerHTML = `
+                    <div style="display: flex; flex-direction: column; gap: 0.6rem; padding: 0.4rem 0;">
+                        <div class="skeleton-bar" style="height: 34px; width: 100%;"></div>
+                        <div class="skeleton-bar" style="height: 34px; width: 100%;"></div>
+                        <div class="skeleton-bar" style="height: 34px; width: 100%;"></div>
+                        <div class="skeleton-bar" style="height: 34px; width: 100%;"></div>
+                        <div class="skeleton-bar" style="height: 34px; width: 100%;"></div>
+                    </div>
+                `;
+            }
+
+            fetch(`/api/top5_standings?league_id=${leagueId}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data || data.length === 0) {
+                        box.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No hay posiciones registradas.</p>`;
+                        return;
+                    }
+                    box.innerHTML = data.map((t, i) => `
+                        <div class="leader-item">
+                            <div class="leader-team-badge">
+                                <span style="color: #60a5fa; width: 15px;">#${t.posicion || (i + 1)}</span>
+                                <img src="${t.logo}" onerror="this.src='${DEFAULT_SHIELD}'" alt="${t.nombre}">
+                                <span>${t.nombre}</span>
+                            </div>
+                            <strong style="color: #f59e0b;">${t.puntos} pts</strong>
+                        </div>
+                    `).join('');
+                })
+                .catch(err => {
+                    box.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">Error al cargar líderes.</p>`;
+                });
+        }
+
+        function cargarNoticiasYPartidos() {
+            fetch('/api/noticias')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.partidos && data.partidos.length > 0) {
+                        partidosEnVivoData = data.partidos;
+                        renderHeroCarousel(data.partidos);
+                    } else {
+                        partidosEnVivoData = defaultLiveMatches;
+                        renderHeroCarousel(defaultLiveMatches);
+                    }
+
+                    if (data.noticias && data.noticias.length > 0) {
+                        todasLasNoticiasData = data.noticias;
+                        renderNoticias(data.noticias);
+                    }
+                })
+                .catch(err => {
+                    partidosEnVivoData = defaultLiveMatches;
+                    renderHeroCarousel(defaultLiveMatches);
+                });
+        }
+
+        function cargarTransmisiones() {
+            fetch('/api/transmisiones')
+                .then(r => r.json())
+                .then(res => {
+                    const streamsList = document.getElementById('streamsList');
+                    if (res.partidos && res.partidos.length > 0) {
+                        window.transmisionesRojadirecta = res.partidos;
+                        streamsList.innerHTML = res.partidos.map(st => {
+                            const canales = st.canales || [{ nombre: 'Canal HD Directo', url: st.url }];
+                            const canalesHtml = canales.map((c) => `
+                                <a href="javascript:void(0)" onclick="abrirCanalDirecto('${encodeURIComponent(st.titulo + ' - ' + c.nombre)}', '${c.url}')" class="btn-stream-channel">
+                                    <i class="bi bi-play-fill"></i> ${c.nombre}
+                                </a>
+                            `).join('');
+
+                            return `
+                                <div class="stream-item">
+                                    <div class="stream-title">${st.titulo}</div>
+                                    <div class="stream-channels-row">
+                                        ${canalesHtml}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        streamsList.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No hay transmisiones activas en este momento.</p>`;
+                    }
+                });
+        }
+
+        function renderNoticias(noticias) {
+            const heroContainer = document.getElementById('heroStoryContainer');
+            const grid = document.getElementById('newsGrid');
+
+            if (!noticias || noticias.length === 0) {
+                grid.innerHTML = `<p style="color: var(--text-muted);">No hay noticias disponibles en esta categoría.</p>`;
+                return;
+            }
+
+            const destacada = noticias[0];
+            const secundarias = noticias.slice(1);
+
+            heroContainer.innerHTML = `
+                <a href="${destacada.link}" target="_blank" rel="noopener" class="hero-story">
+                    <img src="${destacada.imagen}" onerror="this.src='${fallbackImg}'" class="hero-bg" alt="${destacada.titulo}">
+                    <div class="hero-content">
+                        <span class="tag">${destacada.categoria}</span>
+                        <h2 class="hero-title">${destacada.titulo}</h2>
+                        <p class="hero-desc">${destacada.resumen}</p>
+                    </div>
+                </a>
+            `;
+
+            grid.innerHTML = secundarias.map(n => `
+                <a href="${n.link}" target="_blank" rel="noopener" class="news-card">
+                    <img src="${n.imagen}" onerror="this.src='${fallbackImg}'" class="card-img" alt="${n.titulo}">
+                    <div class="card-body">
+                        <span style="color: #60a5fa; font-size: 0.75rem; font-weight: 700;">${n.categoria}</span>
+                        <h4 class="card-title">${n.titulo}</h4>
+                        <p class="card-desc">${n.resumen}</p>
+                        <span style="color: var(--text-muted); font-size: 0.75rem; margin-top: auto;">${n.fecha}</span>
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        function filtrarNoticias(cat, btn) {
+            document.querySelectorAll('.news-filter-pills .pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (cat === 'todas') {
+                renderNoticias(todasLasNoticiasData);
+            } else {
+                const filtradas = todasLasNoticiasData.filter(n => n.categoria.toLowerCase().includes(cat.toLowerCase()));
+                renderNoticias(filtradas);
+            }
+        }
+
+        function renderHeroCarousel(partidos) {
+            const track = document.getElementById('carouselTrack');
+            const dotsContainer = document.getElementById('carouselDots');
+            totalSlidesCount = partidos.length;
+
+            track.innerHTML = partidos.map((m, idx) => `
+                <div class="carousel-slide" onclick="abrirTransmisionPartido(${idx})">
+                    <div class="team-side home">
+                        <span class="team-side-name">${m.home}</span>
+                        <img src="${m.home_logo}" onerror="this.src='${DEFAULT_SHIELD}'" alt="${m.home}">
+                    </div>
+
+                    <div class="score-center-box">
+                        <span class="score-numbers">${m.goals_home} - ${m.goals_away}</span>
+                        <span class="minute-badge">${m.minute}' EN VIVO</span>
+                    </div>
+
+                    <div class="team-side away">
+                        <img src="${m.away_logo}" onerror="this.src='${DEFAULT_SHIELD}'" alt="${m.away}">
+                        <span class="team-side-name">${m.away}</span>
+                    </div>
+
+                    <div class="btn-live-watch">
+                        <i class="bi bi-play-circle-fill"></i> Ver Transmisión
+                    </div>
+                </div>
+            `).join('');
+
+            dotsContainer.innerHTML = partidos.map((_, idx) => `
+                <div class="dot ${idx === 0 ? 'active' : ''}" onclick="goToSlide(${idx})"></div>
+            `).join('');
+
+            startCarouselAutoPlay();
+        }
+
+        function updateCarouselPosition() {
+            const track = document.getElementById('carouselTrack');
+            track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+
+            const dots = document.querySelectorAll('.carousel-dots .dot');
+            dots.forEach((dot, idx) => {
+                if (idx === currentSlideIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function slideNext() {
+            if (totalSlidesCount === 0) return;
+            currentSlideIndex = (currentSlideIndex + 1) % totalSlidesCount;
+            updateCarouselPosition();
+            resetCarouselTimer();
+        }
+
+        function slidePrev() {
+            if (totalSlidesCount === 0) return;
+            currentSlideIndex = (currentSlideIndex - 1 + totalSlidesCount) % totalSlidesCount;
+            updateCarouselPosition();
+            resetCarouselTimer();
+        }
+
+        function goToSlide(idx) {
+            currentSlideIndex = idx;
+            updateCarouselPosition();
+            resetCarouselTimer();
+        }
+
+        function startCarouselAutoPlay() {
+            if (carouselTimer) clearInterval(carouselTimer);
+            carouselTimer = setInterval(() => {
+                if (totalSlidesCount > 0) {
+                    currentSlideIndex = (currentSlideIndex + 1) % totalSlidesCount;
+                    updateCarouselPosition();
+                }
+            }, 4000);
+        }
+
+        function resetCarouselTimer() {
+            startCarouselAutoPlay();
+        }
+
+        function abrirTransmisionPartido(idx) {
+            const partido = partidosEnVivoData[idx];
+            if (!partido) return;
+
+            let streamUrl = 'https://rojadirectaoficial.net/';
+            let titulo = `${partido.home} vs ${partido.away} - Canal HD Directo`;
+
+            if (window.transmisionesRojadirecta && window.transmisionesRojadirecta[idx]) {
+                const matchStream = window.transmisionesRojadirecta[idx];
+                streamUrl = matchStream.url;
+                if (matchStream.canales && matchStream.canales.length > 0) {
+                    streamUrl = matchStream.canales[0].url;
+                    titulo = `${matchStream.titulo} - ${matchStream.canales[0].nombre}`;
+                }
+            }
+
+            abrirCanalDirecto(encodeURIComponent(titulo), streamUrl);
+        }
+
+        function abrirCanalDirecto(tituloEncoded, streamUrl) {
+            const titulo = decodeURIComponent(tituloEncoded);
+            document.getElementById('playerModalTitle').innerText = titulo;
+            document.getElementById('playerIframe').src = streamUrl;
+            document.getElementById('playerExternalLink').href = streamUrl;
+            document.getElementById('playerModal').style.display = 'flex';
+        }
+
+        function cerrarReproductor() {
+            document.getElementById('playerModal').style.display = 'none';
+            document.getElementById('playerIframe').src = '';
+        }
+    </script>
 </body>
 </html>

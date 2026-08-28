@@ -22,3 +22,22 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Python & Virtual Environments
+.venv/
+nombre_del_entorno/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# IDE & Editor files
+.vscode/
+.idea/
+
+# Local SQLite Database
+dev.db
+
+# Scratch temporary scripts
+scratch/
+

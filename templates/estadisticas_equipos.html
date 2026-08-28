@@ -3,146 +3,537 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Estadistica de Equipos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/estadistica.css') }}">
+    <title>GOALSTATS LIVE ⚡ | Estadísticas de Ligas & Tabla Oficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, rgba(9, 13, 22, 0.92) 0%, rgba(17, 24, 39, 0.94) 50%, rgba(30, 27, 75, 0.92) 100%),
+                        url('/static/football_bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        @keyframes shimmerAnimation {
+            0% { background-position: -300px 0; }
+            100% { background-position: 300px 0; }
+        }
+
+        .skeleton-bar {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.14) 50%, rgba(255, 255, 255, 0.04) 100%);
+            background-size: 600px 100%;
+            animation: shimmerAnimation 1.4s infinite linear;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .logo-icon-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            margin-right: 0.35rem;
+        }
+
+        .logo-icon-wrap i.ball-icon {
+            font-size: 1.6rem;
+            color: #60a5fa;
+            -webkit-text-fill-color: initial;
+        }
+
+        .logo-icon-wrap i.ray-icon {
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            color: #f59e0b;
+            font-size: 1.15rem;
+            -webkit-text-fill-color: initial;
+            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8));
+        }
+
+        nav ul {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 2rem;
+        }
+
+        select, button, input[type="text"] {
+            background: #1e293b;
+            color: #fff;
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus, select:focus, button:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            cursor: pointer;
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 260px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding-left: 2.5rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .team-selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .team-logos-grid {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding: 0.5rem 0.25rem 1rem 0.25rem;
+        }
+
+        .team-logo-item {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid var(--card-border);
+            border-radius: 14px;
+            padding: 0.85rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            user-select: none;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .team-logo-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .team-logo-item img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+        }
+
+        .team-logo-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .table-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        tr.clickable-row {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        tr.clickable-row:hover {
+            background: rgba(59, 130, 246, 0.12);
+        }
+
+        .team-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+        }
+
+        .team-badge img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        @media print {
+            nav, .controls-card, button, .sync-box {
+                display: none !important;
+            }
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            .table-card {
+                background: #ffffff !important;
+                border: 1px solid #ddd !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+            }
+            th {
+                color: #555555 !important;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav>
+
+    <nav style="padding: 0.75rem 2.5rem;">
+        <a href="/principal" class="brand-logo" style="text-decoration: none; display: flex; align-items: center; gap: 1rem;">
+            <img src="/static/img/shield_icon.png" alt="GOALSTATS LIVE" style="height: 64px; width: auto; object-fit: contain; filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.6));">
+            <span style="font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 0.5rem; font-size: 1.9rem;">
+                <span style="color: #ffffff; text-shadow: 0 3px 12px rgba(0,0,0,0.7);">GOALSTATS</span>
+                <span style="color: #ffffff; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 0.22rem 0.7rem; border-radius: 9px; font-size: 1.45rem; box-shadow: 0 0 18px rgba(239, 68, 68, 0.6); font-weight: 900; letter-spacing: 0.75px;">LIVE</span>
+            </span>
+        </a>
         <ul>
-            <li><a href="{{ url_for('principal') }}">Inicio</a></li>
-            <li><a href="{{ url_for('ingresar_equipos') }}">Ingresar Equipos</a></li>
-            <li><a href="{{ url_for('registrar_datos') }}">Registrar Datos</a></li>
-            <li><a href="{{ url_for('estadisticas_equipos') }}">Estadísticas</a></li>
-            <li><a href="{{ url_for('cerrar_sesion') }}">Cerrar Sesión</a></li>
+            <li><a href="/principal"><i class="bi bi-house-door"></i> Inicio</a></li>
+            <li><a href="/estadisticas_equipos" class="active"><i class="bi bi-bar-chart-line"></i> Estadísticas y Ligas</a></li>
         </ul>
     </nav>
 
-    <header>
-        <!-- Logo del equipo -->
-        {% if logo_url %}
-            <img src="{{ logo_url }}" alt="Logo del Equipo" style="max-width: 100px; max-height: 100px;">
-        {% endif %}
-    </header>
-
     <div class="container">
-        <!-- Formulario de selección de equipos -->
-        <form method="post" id="equipoForm">
-            <label for="equipo">Seleccionar Equipo:</label>
-            <select name="equipo" id="equipoSelect">
-                {% for equipo in equipos %}
-                    <option value="{{ equipo.nombre }}" {% if selected_equipo == equipo.nombre %}selected{% endif %}>{{ equipo.nombre }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Mostrar Estadísticas</button>
-        </form>
-    </div>
-
-    <div class="stats-container">
-        <!-- Estadísticas Globales del Equipo -->
-        {% if estadisticas %}
-            <div class="team-stats">
-                <h2>Estadísticas Globales del Equipo</h2>
-                <p>Porcentaje de partidos ganados: {{ estadisticas.porcentaje_partidos_ganados }}%</p>
-                <p>Porcentaje de partidos empatados: {{ estadisticas.porcentaje_partidos_empatados }}%</p>
-                <p>Porcentaje de partidos perdidos: {{ estadisticas.porcentaje_partidos_perdidos }}%</p>
+        
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Centro de Estadísticas & Ligas Mundiales</h1>
+                <p style="color: var(--text-muted); margin-top: 0.25rem;">Selecciona cualquiera de las 15 ligas principales para cargar su tabla en vivo</p>
             </div>
-
-            <!-- Estadísticas de Jugadores -->
-            <div class="player-stats">
-                <h2>Estadísticas de Jugadores</h2>
-                <p>Goles por remate: {{ estadisticas.goles_por_remate }}</p>
-                <p>Tarjetas amarillas por rojas: {{ estadisticas.tarjetas_amarillas_por_rojas }}</p>
-                <p>Mejor goleador: {{ estadisticas.mejor_goleador }}</p>
-                <p>Jugador con mayor riesgo de tarjetas rojas: {{ estadisticas.jugador_mayor_riesgo }}</p>
+            <div class="sync-box" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <label for="apiLeagueSelect" style="font-weight: 600;">Liga:</label>
+                <select id="apiLeagueSelect" onchange="cambiarLigaConSkeleton(this.value)">
+                    <option value="140" {% if selected_league_id == 140 %}selected{% endif %}>La Liga (España) 🇪🇸</option>
+                    <option value="39" {% if selected_league_id == 39 %}selected{% endif %}>Premier League (Inglaterra) 🏴󠁧󠁢󠁥󠁮󠁧󠁿</option>
+                    <option value="135" {% if selected_league_id == 135 %}selected{% endif %}>Serie A (Italia) 🇮🇹</option>
+                    <option value="78" {% if selected_league_id == 78 %}selected{% endif %}>Bundesliga (Alemania) 🇩🇪</option>
+                    <option value="61" {% if selected_league_id == 61 %}selected{% endif %}>Ligue 1 (Francia) 🇫🇷</option>
+                    <option value="239" {% if selected_league_id == 239 %}selected{% endif %}>Liga BetPlay (Colombia) 🇨🇴</option>
+                    <option value="128" {% if selected_league_id == 128 %}selected{% endif %}>Liga Profesional (Argentina) 🇦🇷</option>
+                    <option value="253" {% if selected_league_id == 253 %}selected{% endif %}>MLS (Estados Unidos) 🇺🇸</option>
+                    <option value="262" {% if selected_league_id == 262 %}selected{% endif %}>Liga MX (México) 🇲🇽</option>
+                    <option value="71" {% if selected_league_id == 71 %}selected{% endif %}>Brasileirão (Brasil) 🇧🇷</option>
+                    <option value="88" {% if selected_league_id == 88 %}selected{% endif %}>Eredivisie (Países Bajos) 🇳🇱</option>
+                    <option value="94" {% if selected_league_id == 94 %}selected{% endif %}>Primeira Liga (Portugal) 🇵🇹</option>
+                    <option value="307" {% if selected_league_id == 307 %}selected{% endif %}>Saudi Pro League (Arabia Saudita) 🇸🇦</option>
+                    <option value="2" {% if selected_league_id == 2 %}selected{% endif %}>UEFA Champions League 🇪🇺</option>
+                    <option value="13" {% if selected_league_id == 13 %}selected{% endif %}>Copa Libertadores 🏆</option>
+                </select>
+                <button onclick="window.print()" class="btn-pdf"><i class="bi bi-file-earmark-pdf"></i> Exportar PDF</button>
             </div>
-        {% endif %}
-    </div>
+        </div>
 
-    <div class="chart-container">
-        <!-- Gráfico a la derecha de las estadísticas -->
-        <canvas id="myChart" width="" height=""></canvas>
-    </div>
-    <button onclick="imprimirPagina()">Descargar pdf</button>
+        <div class="controls-card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem;">
+            <div class="search-box" style="width: 100%;">
+                <i class="bi bi-search" style="font-size: 1.1rem; color: #60a5fa;"></i>
+                <input type="text" id="teamSearchInput" placeholder="Buscar equipo en la tabla de posiciones..." oninput="filtrarEquiposBuscador(this.value)" style="width: 100%; border-radius: 12px; padding-left: 2.75rem; background: #1e293b; border: 1px solid var(--card-border); font-size: 1rem;">
+            </div>
+        </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <div class="table-card">
+            <h3 style="margin-bottom: 1rem;"><i class="bi bi-trophy" style="color: #f59e0b;"></i> Tabla General de Posiciones (Oficial En Vivo)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Equipo</th>
+                        <th>PJ</th>
+                        <th>PG</th>
+                        <th>PE</th>
+                        <th>PP</th>
+                        <th>Puntos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaPosicionesBody">
+                    {% if equipos %}
+                        {% for item in equipos %}
+                            <tr class="clickable-row" onclick="window.location.href='/plantilla/{{ item.nombre }}'">
+                                <td><strong style="color: #60a5fa;">${item.posicion or loop.index}</strong></td>
+                                <td>
+                                    <div class="team-badge">
+                                        <img src="{{ item.logo }}" onerror="this.src='/static/img/shield_icon.png'" alt="{{ item.nombre }}">
+                                        <span>{{ item.nombre }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ item.pj }}</td>
+                                <td>{{ item.pg }}</td>
+                                <td>{{ item.pe }}</td>
+                                <td>{{ item.pp }}</td>
+                                <td><strong style="color: #f59e0b;">{{ item.puntos }} pts</strong></td>
+                                <td>
+                                    <a href="/plantilla/{{ item.nombre }}" style="color: #a78bfa; text-decoration: none; font-weight: 700;">
+                                        <i class="bi bi-bar-chart-fill"></i> Ver Plantilla <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Skeleton Loader Filas por Defecto -->
+                        <tr style="pointer-events: none;"><td colspan="8"><div class="skeleton-bar" style="height: 35px; width: 100%;"></div></td></tr>
+                        <tr style="pointer-events: none;"><td colspan="8"><div class="skeleton-bar" style="height: 35px; width: 100%;"></div></td></tr>
+                        <tr style="pointer-events: none;"><td colspan="8"><div class="skeleton-bar" style="height: 35px; width: 100%;"></div></td></tr>
+                        <tr style="pointer-events: none;"><td colspan="8"><div class="skeleton-bar" style="height: 35px; width: 100%;"></div></td></tr>
+                        <tr style="pointer-events: none;"><td colspan="8"><div class="skeleton-bar" style="height: 35px; width: 100%;"></div></td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var ctx = document.getElementById('myChart').getContext('2d');
+        const DEFAULT_SHIELD = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='%233b82f6'><path d='M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3zm0 2.18l7 2.33v4.49c0 4.54-3.14 8.78-7 9.87-3.86-1.09-7-5.33-7-9.87V6.51l7-2.33z'/></svg>";
+        const currentLeagueId = {{ selected_league_id }};
 
-            // Función para actualizar el gráfico
-            function actualizarGrafico(data) {
-                var myChart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Ganados', 'Empatados', 'Perdidos'],
-                        datasets: [{
-                            data: [data.porcentaje_partidos_ganados, data.porcentaje_partidos_empatados, data.porcentaje_partidos_perdidos],
-                            backgroundColor: ['#FF6F61', '#FFD700', '#4CAF50'],
-                            hoverBackgroundColor: ['#FF524F', '#FFC100', '#45A248'],
-                            borderColor: 'white',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutoutPercentage: 60,
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                boxWidth: 15,
-                                fontSize: 14
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Distribución de Resultados',
-                            fontSize: 18
-                        },
-                        animation: {
-                            animateScale: true,
-                            animateRotate: true
-                        }
-                    }
-                });
+        function generarSkeletonRowsHTML(count = 6) {
+            let rows = '';
+            for(let i = 0; i < count; i++) {
+                rows += `
+                    <tr style="pointer-events: none;">
+                        <td><div class="skeleton-bar" style="height: 20px; width: 22px;"></div></td>
+                        <td>
+                            <div class="team-badge" style="gap: 0.75rem;">
+                                <div class="skeleton-bar" style="height: 32px; width: 32px; border-radius: 50%;"></div>
+                                <div class="skeleton-bar" style="height: 20px; width: 120px;"></div>
+                            </div>
+                        </td>
+                        <td><div class="skeleton-bar" style="height: 18px; width: 24px;"></div></td>
+                        <td><div class="skeleton-bar" style="height: 18px; width: 24px;"></div></td>
+                        <td><div class="skeleton-bar" style="height: 18px; width: 24px;"></div></td>
+                        <td><div class="skeleton-bar" style="height: 18px; width: 24px;"></div></td>
+                        <td><div class="skeleton-bar" style="height: 22px; width: 45px;"></div></td>
+                        <td><div class="skeleton-bar" style="height: 24px; width: 90px; border-radius: 6px;"></div></td>
+                    </tr>
+                `;
+            }
+            return rows;
+        }
+
+        function generarTeamLogosSkeletonHTML(count = 8) {
+            let items = '';
+            for(let i = 0; i < count; i++) {
+                items += `
+                    <div class="team-logo-item" style="pointer-events: none; opacity: 0.8;">
+                        <div class="skeleton-bar" style="height: 28px; width: 28px; border-radius: 50%;"></div>
+                        <div class="skeleton-bar" style="height: 18px; width: 85px;"></div>
+                    </div>
+                `;
+            }
+            return items;
+        }
+
+        function cambiarLigaConSkeleton(leagueId) {
+            const tbody = document.getElementById('tablaPosicionesBody');
+            const logosGrid = document.getElementById('teamLogosGrid');
+            if (tbody) tbody.innerHTML = generarSkeletonRowsHTML(7);
+            if (logosGrid) logosGrid.innerHTML = generarTeamLogosSkeletonHTML(8);
+            window.location.href = '/estadisticas_equipos?league_id=' + leagueId;
+        }
+
+        function filtrarEquiposBuscador(query) {
+            const term = query.toLowerCase().trim();
+            const items = document.querySelectorAll('#teamLogosGrid .team-logo-item');
+            
+            items.forEach(item => {
+                const name = item.getAttribute('data-team-name') || '';
+                if (name.includes(term)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            const rows = document.querySelectorAll('#tablaPosicionesBody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const tbody = document.getElementById('tablaPosicionesBody');
+            const logosGrid = document.getElementById('teamLogosGrid');
+
+            if (!tbody.children.length || tbody.innerHTML.includes('skeleton')) {
+                tbody.innerHTML = generarSkeletonRowsHTML(7);
             }
 
-            // Obtener y actualizar el gráfico al cargar la página
-            fetch('/obtener_estadisticas_json', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({nombre_equipo: '{{ selected_equipo }}'})
-            })
-            .then(response => response.json())
-            .then(data => {
-                actualizarGrafico(data);
-            });
-
-            // Manejar cambios en el equipo seleccionado
-            document.getElementById('equipoSelect').addEventListener('change', function () {
-                fetch('/obtener_estadisticas_json', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({nombre_equipo: this.value})
-                })
-                .then(response => response.json())
+            fetch(`/estadisticas/tabla_posiciones?league_id=${currentLeagueId}`)
+                .then(r => r.json())
                 .then(data => {
-                    // Actualizar el gráfico con los nuevos datos
-                    actualizarGrafico(data);
+                    if (!data || data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted);">No hay posiciones registradas para esta liga.</td></tr>`;
+                        return;
+                    }
+
+                    if (logosGrid) {
+                        logosGrid.innerHTML = data.map(item => `
+                            <a href="/plantilla/${encodeURIComponent(item.nombre)}" class="team-logo-item" data-team-name="${item.nombre.toLowerCase()}">
+                                <img src="${item.logo}" onerror="this.src='${DEFAULT_SHIELD}'" alt="${item.nombre}">
+                                <span class="team-logo-name">${item.nombre}</span>
+                            </a>
+                        `).join('');
+                    }
+
+                    tbody.innerHTML = data.map((item, idx) => `
+                        <tr class="clickable-row" onclick="window.location.href='/plantilla/${encodeURIComponent(item.nombre)}'">
+                            <td><strong style="color: #60a5fa;">#${item.posicion || (idx + 1)}</strong></td>
+                            <td>
+                                <div class="team-badge">
+                                    <img src="${item.logo}" onerror="this.src='${DEFAULT_SHIELD}'" alt="${item.nombre}">
+                                    <span>${item.nombre}</span>
+                                </div>
+                            </td>
+                            <td>${item.pj}</td>
+                            <td>${item.pg}</td>
+                            <td>${item.pe}</td>
+                            <td>${item.pp}</td>
+                            <td><strong style="color: #f59e0b;">${item.puntos} pts</strong></td>
+                            <td>
+                                <a href="/plantilla/${encodeURIComponent(item.nombre)}" style="color: #a78bfa; text-decoration: none; font-weight: 700;">
+                                    <i class="bi bi-bar-chart-fill"></i> Ver Plantilla <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `).join('');
                 });
-            });
         });
-
-        // Función para imprimir la página
-        function imprimirPagina() {
-            window.print();
-        }
     </script>
-
 </body>
 </html>

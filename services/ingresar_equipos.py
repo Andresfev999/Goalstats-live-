@@ -1,23 +1,18 @@
-from flask import Flask, request, redirect, url_for, render_template, jsonify
-from conf import supabase  # Asegúrate de que conf.py esté en el mismo directorio y configurado
+from flask import Blueprint, Flask, request, redirect, url_for, render_template, jsonify
+from conf import db
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'una_llave_secreta_muy_segura'
+ingresar_equipos_blueprint = Blueprint('ingresar_equipos', __name__)
 
-@app.route('/principal')
+@ingresar_equipos_blueprint.route('/principal')
 def principal():
     try:
-        response = supabase.table('Equipos').select('*').execute()
-        if response.error:
-            equipos = []
-        else:
-            equipos = response.data
+        equipos = db.equipo.find_many()
     except Exception as e:
         print(f"Error al cargar equipos: {e}")
         equipos = []
-    return render_template('principal.html', equipos=equipos)
+    return render_template('principal.html', equipos={'equipos': equipos})
 
-@app.route('/ingresar_equipos', methods=['GET', 'POST'])
+@ingresar_equipos_blueprint.route('/ingresar_equipos', methods=['GET', 'POST'])
 def ingresar_equipos():
     if request.method == 'POST':
         nombre_equipo = request.form.get('nombre_equipo')
@@ -27,18 +22,15 @@ def ingresar_equipos():
             return render_template('ingresar_equipos.html', mensaje_error="Todos los campos son obligatorios")
 
         try:
-            response = supabase.table('Equipos').select('nombre').eq('nombre', nombre_equipo).execute()
-            if response.data:
+            existente = db.equipo.find_first(where={'nombre': nombre_equipo})
+            if existente:
                 return render_template('ingresar_equipos.html', mensaje_error="El equipo ya está ingresado")
             
-            response = supabase.table('Equipos').insert({
-                'nombre': nombre_equipo, 'logo': logo_ruta
-            }).execute()
-            
-            if response.error:
-                raise Exception("Error al insertar el equipo")
+            db.equipo.create(data={
+                'nombre': nombre_equipo,
+                'logo': logo_ruta
+            })
 
-            # Redireccionar a la página principal una vez ingresado el equipo.
             return redirect(url_for('principal'))
         except Exception as e:
             return render_template('ingresar_equipos.html', mensaje_error=str(e))
@@ -46,4 +38,7 @@ def ingresar_equipos():
     return render_template('ingresar_equipos.html')
 
 if __name__ == '__main__':
+    app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'una_llave_secreta_muy_segura'
+    app.register_blueprint(ingresar_equipos_blueprint)
     app.run(debug=True, port=5004)
